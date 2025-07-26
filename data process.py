@@ -1,4 +1,4 @@
-%pip install -Uq "unstructured[all-docs]" pillow lxml pillow
+#%pip install -Uq "unstructured[all-docs]" pillow lxml pillow
 %pip install -Uq chromadb tiktoken
 %pip install -Uq langchain langchain-community langchain-openai langchain-groq
 %pip install -Uq python_dotenv

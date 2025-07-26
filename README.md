@@ -1,1 +1,1 @@
-# Simple-Multilingual-Retrieval-Augmented-Generation-RAG-System-
+# Simple Multilingual Retrieval Augmented Generation RAG System

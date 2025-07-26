@@ -1,0 +1,82 @@
+%pip install -Uq "unstructured[all-docs]" pillow lxml pillow
+%pip install -Uq chromadb tiktoken
+%pip install -Uq langchain langchain-community langchain-openai langchain-groq
+%pip install -Uq python_dotenv
+!apt-get -y install poppler-utils
+ !apt-get update
+!apt-get install -y tesseract-ocr tesseract-ocr-ben 
+  from google.colab import files
+uploaded = files.upload()
+  import os
+pdf_path = list(uploaded.keys())[0]
+print("Uploaded file:", pdf_path)
+from unstructured.partition.pdf import partition_pdf
+
+file_path = "/content/HSC26-Bangla1st-Paper.pdf"
+  # Automatically uses the uploaded file
+
+chunks = partition_pdf(
+    filename=file_path,
+    infer_table_structure=True,
+    strategy="hi_res",
+    extract_image_block_types=["Image"],
+    extract_image_block_to_payload=True,
+    chunking_strategy="basic",
+    max_characters=1000,
+    combine_text_under_n_chars=200,
+    new_after_n_chars=600,
+    languages=["ben"],
+)
+# We get 2 types of elements from the partition_pdf function
+set([str(type(el)) for el in chunks])
+  # Each CompositeElement containes a bunch of related elements.
+# This makes it easy to use these elements together in a RAG pipeline.
+
+chunks[3].metadata.orig_elements
+chunks[2].metadata.orig_elements
+
+  # This is what an extracted image looks like.
+# It contains the base64 representation only because we set the param extract_image_block_to_payload=True
+
+elements = chunks[1].metadata.orig_elements
+chunk_images = [el for el in elements if 'Image' in str(type(el))]
+chunk_images[0].to_dict()
+
+len(chunks)
+chunks[4].to_dict()
+# separate tables from texts
+tables = []
+texts = []
+
+for chunk in chunks:
+    if "Table" in str(type(chunk)):
+        tables.append(chunk)
+
+    if "CompositeElement" in str(type((chunk))):
+        texts.append(chunk)
+
+  # Get the images from the CompositeElement objects
+def get_images_base64(chunks):
+    images_b64 = []
+    for chunk in chunks:
+        if "CompositeElement" in str(type(chunk)):
+            chunk_els = chunk.metadata.orig_elements
+            for el in chunk_els:
+                if "Image" in str(type(el)):
+                    images_b64.append(el.metadata.image_base64)
+    return images_b64
+
+images = get_images_base64(chunks)
+
+  import base64
+from IPython.display import Image, display
+
+def display_base64_image(base64_code):
+    # Decode the base64 string to binary
+    image_data = base64.b64decode(base64_code)
+    # Display the image
+    display(Image(data=image_data))
+
+display_base64_image(images[0])
+  
+  

@@ -42,3 +42,5 @@ docs = retriever.get_relevant_documents(query)
 for d in docs:
     print("🔍 Retrieved:", d.page_content)
 
+
+
